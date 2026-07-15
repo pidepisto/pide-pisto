@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Clock, CheckCircle, Truck, PackageCheck, XCircle, ChevronRight } from 'lucide-react'
 import { fp } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // ─── tipos ───────────────────────────────────────────────────────────────────
 type PedidoAdmin = {
