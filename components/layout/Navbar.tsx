@@ -25,17 +25,21 @@ export default function Navbar() {
   const [perfil, setPerfil] = useState<Perfil | null>(null)
 
   useEffect(() => {
-    const cargarPerfil = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase
-        .from('perfiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+    const cargarPerfil = async (userId: string) => {
+      const { data } = await supabase.from('perfiles').select('*').eq('id', userId).single()
       if (data) setPerfil(data)
     }
-    cargarPerfil()
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) cargarPerfil(user.id)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) cargarPerfil(session.user.id)
+      else setPerfil(null)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const cerrarSesion = async () => {
