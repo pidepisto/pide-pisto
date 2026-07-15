@@ -18,6 +18,8 @@ export type Zona = {
   id: string
   nombre: string
   activa: boolean
+  costo_envio: number
+  envio_gratis_desde: number | null
   created_at: string
 }
 
@@ -35,6 +37,7 @@ export type Producto = {
   nombre: string
   descripcion: string | null
   precio: number
+  precio_promocion: number | null
   imagen_url: string | null
   categoria_id: string
   categoria?: Categoria
@@ -81,11 +84,15 @@ export type Pedido = {
   zona?: Zona
   direccion: string
   total: number
+  costo_envio: number
   estado: EstadoPedido
   metodo_pago: string | null
   notas: string | null
   items?: PedidoItem[]
   created_at: string
+  confirmado_en?: string | null
+  en_camino_desde?: string | null
+  entregado_en?: string | null
 }
 
 export type PedidoItem = {

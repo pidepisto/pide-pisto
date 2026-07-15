@@ -69,7 +69,7 @@ export default function DireccionesPage() {
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
-      <div className="flex items-center gap-3 px-4 pt-5 pb-4">
+      <div className="md:hidden flex items-center gap-3 px-4 pt-5 pb-4">
         <Link href="/cuenta">
           <button className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ border: '1px solid oklch(0.88 0.03 70)', backgroundColor: 'oklch(1 0 0)' }}>
@@ -80,8 +80,11 @@ export default function DireccionesPage() {
           Mis direcciones
         </h1>
       </div>
+      <h1 className="hidden md:block pb-5" style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'oklch(0.2 0.03 30)' }}>
+        Mis direcciones
+      </h1>
 
-      <div className="px-4 flex flex-col gap-4 pb-32 max-w-lg mx-auto">
+      <div className="px-4 md:px-0 flex flex-col gap-4 pb-32 md:pb-4 max-w-2xl">
         {cargando && (
           <p className="text-sm text-center py-12" style={{ color: 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>Cargando…</p>
         )}

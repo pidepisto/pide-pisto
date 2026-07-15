@@ -6,29 +6,32 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, ShoppingBag, Package, Users,
-  DollarSign, BarChart2, Tag, Settings, Menu, X, LogOut
+  DollarSign, BarChart2, Tag, Settings, Menu, X, LogOut, MapPin, Bell, FileUp
 } from 'lucide-react'
 
 const NAV = [
-  { href: '/admin',              icon: LayoutDashboard, label: 'Dashboard'     },
-  { href: '/admin/pedidos',      icon: ShoppingBag,     label: 'Pedidos'       },
-  { href: '/admin/catalogo',     icon: Package,         label: 'Catálogo'      },
-  { href: '/admin/repartidores', icon: Users,           label: 'Repartidores'  },
-  { href: '/admin/finanzas',     icon: DollarSign,      label: 'Finanzas'      },
-  { href: '/admin/analitica',    icon: BarChart2,       label: 'Analítica'     },
-  { href: '/admin/cupones',      icon: Tag,             label: 'Cupones'       },
-  { href: '/admin/configuracion',icon: Settings,        label: 'Configuración' },
+  { href: '/admin',                  icon: LayoutDashboard, label: 'Dashboard'       },
+  { href: '/admin/pedidos',          icon: ShoppingBag,     label: 'Pedidos'         },
+  { href: '/admin/catalogo',         icon: Package,         label: 'Catálogo'        },
+  { href: '/admin/zonas',            icon: MapPin,          label: 'Zonas'           },
+  { href: '/admin/repartidores',     icon: Users,           label: 'Repartidores'    },
+  { href: '/admin/finanzas',         icon: DollarSign,      label: 'Finanzas'        },
+  { href: '/admin/analitica',        icon: BarChart2,       label: 'Analítica'       },
+  { href: '/admin/cupones',          icon: Tag,             label: 'Cupones'         },
+  { href: '/admin/notificaciones',   icon: Bell,            label: 'Notificaciones'  },
+  { href: '/admin/importar',          icon: FileUp,          label: 'Importar CSV'    },
+  { href: '/admin/configuracion',    icon: Settings,        label: 'Configuración'   },
 ]
 
-// Colores del sidebar (oscuro cálido)
+// Colores del sidebar (claro)
 const S = {
-  bg:       'oklch(0.20 0.05 25)',
-  border:   'oklch(1 0 0 / 0.08)',
+  bg:       'oklch(1 0 0)',
+  border:   'oklch(0.88 0.03 70)',
   active:   'oklch(0.50 0.22 24)',
-  hover:    'oklch(1 0 0 / 0.07)',
-  text:     'oklch(0.80 0.02 50)',
-  textDim:  'oklch(0.55 0.03 40)',
-  logo:     'oklch(0.97 0.012 82)',
+  hover:    'oklch(0.93 0.02 75)',
+  text:     'oklch(0.35 0.02 40)',
+  textDim:  'oklch(0.55 0.02 40)',
+  logo:     'oklch(0.20 0.03 30)',
   badge:    'oklch(0.76 0.14 80)',
   badgeFg:  'oklch(0.20 0.04 30)',
 }

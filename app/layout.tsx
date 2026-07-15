@@ -3,8 +3,10 @@ import { Bebas_Neue, DM_Sans } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import BottomNav from '@/components/layout/BottomNav'
+import HorarioBanner from '@/components/layout/HorarioBanner'
 import VerificacionEdad from '@/components/layout/VerificacionEdad'
 import PwaInit from '@/components/layout/PwaInit'
+import CartDrawer from '@/components/tienda/CartDrawer'
 import { Toaster } from '@/components/ui/sonner'
 
 const bebasNeue = Bebas_Neue({
@@ -24,12 +26,17 @@ export const metadata: Metadata = {
   title: 'Pide Pisto — Alcohol a domicilio',
   description: 'Cerveza, vinos y destilados a domicilio en Chalco e Ixtapaluca, Estado de México.',
   applicationName: 'Pide Pisto',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     title: 'Pide Pisto',
     statusBarStyle: 'default',
   },
   formatDetection: { telephone: false },
+  icons: {
+    icon:  [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icons/icon-192.png', sizes: '192x192' }],
+  },
   openGraph: {
     type: 'website',
     siteName: 'Pide Pisto',
@@ -56,8 +63,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-canvas text-ink">
         <PwaInit />
         <Navbar />
-        <main className="flex-1 pt-14">{children}</main>
+        <main className="flex-1 pt-14">
+          <HorarioBanner />
+          {children}
+        </main>
         <BottomNav />
+        <CartDrawer />
         <Toaster richColors position="top-right" />
         <VerificacionEdad />
       </body>

@@ -91,8 +91,10 @@ export default function FavoritosPage() {
 
       {/* Cargando */}
       {cargando && (
-        <div className="px-4 py-5 flex flex-wrap gap-3">
-          {[1,2,3,4].map(i => <SkeletonProductoCard key={i} />)}
+        <div className="max-w-7xl mx-auto px-4 py-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+            {[1,2,3,4,5,6].map(i => <SkeletonProductoCard key={i} />)}
+          </div>
         </div>
       )}
 
@@ -122,8 +124,8 @@ export default function FavoritosPage() {
 
       {/* Grid de favoritos */}
       {!cargando && visibles.length > 0 && (
-        <div className="px-4 py-5 pb-32 max-w-5xl mx-auto">
-          <div className="flex flex-wrap gap-3">
+        <div className="max-w-7xl mx-auto px-4 py-5 pb-32 md:pb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
             {visibles.map((p) => (
               <ProductoCard key={p.id} producto={p} />
             ))}

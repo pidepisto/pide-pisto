@@ -1,0 +1,49 @@
+{
+  "name": "Pide Pisto",
+  "short_name": "Pide Pisto",
+  "description": "Alcohol a domicilio en Chalco e Ixtapaluca",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f3ec",
+  "theme_color": "#7a1a1a",
+  "orientation": "portrait-primary",
+  "lang": "es-MX",
+  "categories": ["food", "shopping"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver catálogo",
+      "short_name": "Catálogo",
+      "description": "Explorar productos",
+      "url": "/catalogo",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mis pedidos",
+      "short_name": "Pedidos",
+      "description": "Ver mis pedidos",
+      "url": "/pedidos",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}

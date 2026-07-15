@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import type { Cupon } from '@/lib/types'
+import { fp } from '@/lib/utils'
 
 interface Props {
   subtotal: number
@@ -36,11 +37,11 @@ export function AplicarCupon({ subtotal, onAplicar, onRemover, cuponAplicado }: 
     if (cupon.fecha_fin && new Date(cupon.fecha_fin) < ahora) { toast.error('Este cupón ha expirado'); setLoading(false); return }
     if (new Date(cupon.fecha_inicio) > ahora) { toast.error('Este cupón aún no está disponible'); setLoading(false); return }
     if (cupon.limite_usos !== null && cupon.usos_actuales >= cupon.limite_usos) { toast.error('Este cupón ya alcanzó su límite de usos'); setLoading(false); return }
-    if (subtotal < cupon.minimo_compra) { toast.error(`Compra mínima de $${cupon.minimo_compra} para usar este cupón`); setLoading(false); return }
+    if (subtotal < cupon.minimo_compra) { toast.error(`Compra mínima de ${fp(cupon.minimo_compra)} para usar este cupón`); setLoading(false); return }
 
     const descuento = calcularDescuento(cupon, subtotal)
     onAplicar(cupon, descuento)
-    toast.success(`Cupón aplicado: -$${descuento.toFixed(2)}`)
+    toast.success(`Cupón aplicado: -${fp(descuento)}`)
     setCodigo('')
     setLoading(false)
   }
@@ -57,7 +58,7 @@ export function AplicarCupon({ subtotal, onAplicar, onRemover, cuponAplicado }: 
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold" style={{ color: 'oklch(0.45 0.15 145)', fontFamily: 'var(--font-dm-sans)' }}>-${descuento.toFixed(2)}</span>
+          <span className="text-sm font-bold" style={{ color: 'oklch(0.45 0.15 145)', fontFamily: 'var(--font-dm-sans)' }}>-{fp(descuento)}</span>
           <button onClick={onRemover} className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors" style={{ color: 'oklch(0.55 0.18 145)' }}>
             <X className="h-3.5 w-3.5" />
           </button>
@@ -69,20 +70,24 @@ export function AplicarCupon({ subtotal, onAplicar, onRemover, cuponAplicado }: 
   return (
     <div className="flex gap-2">
       <div className="relative flex-1">
-        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'oklch(0.55 0.02 40)' }} />
+        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none" style={{ color: 'oklch(0.55 0.02 40)' }} />
         <Input
           value={codigo}
           onChange={e => setCodigo(e.target.value.toUpperCase())}
           onKeyDown={e => e.key === 'Enter' && aplicar()}
           placeholder="Código de cupón"
-          className="pl-9"
-          style={{ backgroundColor: 'oklch(0.20 0.03 22)', color: 'oklch(0.85 0.01 82)', border: '1px solid oklch(1 0 0 / 0.1)', fontFamily: 'var(--font-dm-sans)' }}
+          className="pl-9 h-11"
+          style={{ backgroundColor: 'oklch(0.95 0.01 82)', color: 'oklch(0.2 0.03 30)', border: '1px solid oklch(0.88 0.03 70)', fontFamily: 'var(--font-dm-sans)', fontSize: '0.875rem' }}
         />
       </div>
-      <Button onClick={aplicar} disabled={loading || !codigo.trim()} variant="outline" className="flex-shrink-0 border"
-        style={{ borderColor: 'oklch(1 0 0 / 0.15)', backgroundColor: 'transparent', color: 'oklch(0.80 0.01 82)', fontFamily: 'var(--font-dm-sans)' }}>
+      <button
+        onClick={aplicar}
+        disabled={loading || !codigo.trim()}
+        className="flex-shrink-0 px-4 h-11 rounded-xl text-sm font-semibold transition-all active:scale-95 disabled:opacity-40"
+        style={{ backgroundColor: 'oklch(0.50 0.22 24)', color: 'oklch(0.97 0.012 82)', fontFamily: 'var(--font-dm-sans)' }}
+      >
         {loading ? '…' : 'Aplicar'}
-      </Button>
+      </button>
     </div>
   )
 }

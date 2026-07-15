@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Clock, Truck, PackageCheck, XCircle, CheckCircle, ChevronRight, Package } from 'lucide-react'
 import Link from 'next/link'
 import { SkeletonPedidoCard } from '@/components/ui/Skeleton'
+import { fp } from '@/lib/utils'
 
 const RED = 'oklch(0.50 0.22 24)'
 const YEL = 'oklch(0.76 0.14 80)'
@@ -49,7 +50,7 @@ function Tarjeta({ p }: { p: PedidoRow }) {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.3rem', letterSpacing: '0.03em', color: RED }}>
-            ${p.total.toFixed(0)}
+            {fp(p.total)}
           </span>
           <ChevronRight className="h-4 w-4" style={{ color: 'oklch(0.70 0.02 40)' }} />
         </div>
@@ -101,7 +102,7 @@ export default function PedidosPage() {
         </h1>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pb-32 flex flex-col gap-6">
+      <div className="max-w-2xl mx-auto px-4 pb-32 md:pb-10 flex flex-col gap-6">
         {cargando && (
           <div className="flex flex-col gap-3 pt-2">
             {[1,2,3].map(i => <SkeletonPedidoCard key={i} />)}

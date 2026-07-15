@@ -8,6 +8,7 @@ import { useFavoritos } from '@/lib/hooks/useFavoritos'
 import type { Producto } from '@/lib/types'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { fp } from '@/lib/utils'
 
 const RED = 'oklch(0.50 0.22 24)'
 
@@ -40,7 +41,7 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
 
   return (
     <div
-      className="flex-shrink-0 w-44 rounded-2xl overflow-hidden flex flex-col"
+      className="flex-shrink-0 w-44 md:w-full md:flex-shrink-[1] rounded-2xl overflow-hidden flex flex-col"
       style={{
         backgroundColor: 'oklch(1 0 0)',
         border: '1px solid oklch(0.88 0.03 70)',
@@ -56,7 +57,13 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
           className="object-contain p-3"
           sizes="176px"
         />
-        {producto.stock < 10 && producto.stock > 0 && (
+        {producto.precio_promocion && (
+          <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: 'oklch(0.50 0.22 24)', color: 'oklch(0.97 0.012 82)', fontFamily: 'var(--font-dm-sans)' }}>
+            PROMO
+          </span>
+        )}
+        {!producto.precio_promocion && producto.stock < 10 && producto.stock > 0 && (
           <span
             className="absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-full"
             style={{ backgroundColor: 'oklch(0.76 0.14 80)', color: 'oklch(0.2 0.03 30)', fontFamily: 'var(--font-dm-sans)' }}
@@ -95,16 +102,16 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
         </p>
 
         <div className="flex items-center justify-between gap-1">
-          <span
-            style={{
-              fontFamily: 'var(--font-bebas)',
-              fontSize: '1.2rem',
-              letterSpacing: '0.03em',
-              color: 'oklch(0.50 0.22 24)',
-            }}
-          >
-            ${producto.precio.toFixed(0)}
-          </span>
+          <div className="flex flex-col leading-none">
+            <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.2rem', letterSpacing: '0.03em', color: producto.precio_promocion ? 'oklch(0.76 0.14 80)' : 'oklch(0.50 0.22 24)' }}>
+              {fp(producto.precio_promocion ?? producto.precio)}
+            </span>
+            {producto.precio_promocion && (
+              <span className="line-through text-[11px]" style={{ color: 'oklch(0.65 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+                {fp(producto.precio)}
+              </span>
+            )}
+          </div>
 
           {cantidad === 0 ? (
             <Button

@@ -6,18 +6,23 @@ import { createClient } from '@/lib/supabase/client'
 import { CheckCircle, Clock, Truck, PackageCheck, XCircle, ArrowLeft, MapPin, MessageCircle, ReceiptText, Star } from 'lucide-react'
 import Link from 'next/link'
 import type { Pedido, PedidoItem } from '@/lib/types'
+import { fp } from '@/lib/utils'
 import { SkeletonDetallePedido } from '@/components/ui/Skeleton'
+import TiempoTranscurrido from '@/components/ui/TiempoTranscurrido'
 
 const RED = 'oklch(0.50 0.22 24)'
 const GRN = 'oklch(0.55 0.18 145)'
 const BG  = 'oklch(0.97 0.012 82)'
 
 const ESTADOS: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
-  pendiente:  { label: 'Pendiente',  icon: <Clock className="h-5 w-5" />,       color: 'oklch(0.55 0.10 80)',  bg: 'oklch(0.76 0.14 80 / 0.15)'  },
-  confirmado: { label: 'Confirmado', icon: <CheckCircle className="h-5 w-5" />, color: RED,                    bg: 'oklch(0.50 0.22 24 / 0.1)'   },
-  en_camino:  { label: 'En camino',  icon: <Truck className="h-5 w-5" />,       color: GRN,                    bg: 'oklch(0.55 0.18 145 / 0.1)'  },
-  entregado:  { label: 'Entregado',  icon: <PackageCheck className="h-5 w-5" />,color: GRN,                    bg: 'oklch(0.55 0.18 145 / 0.1)'  },
-  cancelado:  { label: 'Cancelado',  icon: <XCircle className="h-5 w-5" />,     color: 'oklch(0.55 0.02 40)', bg: 'oklch(0.88 0.03 70 / 0.5)'   },
+  pendiente:        { label: 'Pendiente',          icon: <Clock className="h-5 w-5" />,       color: 'oklch(0.55 0.10 80)',  bg: 'oklch(0.76 0.14 80 / 0.15)'  },
+  pendiente_pago:   { label: 'Pago en proceso',    icon: <Clock className="h-5 w-5" />,       color: 'oklch(0.55 0.10 80)',  bg: 'oklch(0.76 0.14 80 / 0.15)'  },
+  pago_fallido:     { label: 'Pago fallido',        icon: <XCircle className="h-5 w-5" />,    color: RED,                    bg: 'oklch(0.50 0.22 24 / 0.1)'   },
+  pagado:           { label: 'Pagado',              icon: <CheckCircle className="h-5 w-5" />, color: GRN,                   bg: 'oklch(0.55 0.18 145 / 0.1)'  },
+  confirmado:       { label: 'Confirmado',          icon: <CheckCircle className="h-5 w-5" />, color: RED,                   bg: 'oklch(0.50 0.22 24 / 0.1)'   },
+  en_camino:        { label: 'En camino',           icon: <Truck className="h-5 w-5" />,       color: GRN,                   bg: 'oklch(0.55 0.18 145 / 0.1)'  },
+  entregado:        { label: 'Entregado',           icon: <PackageCheck className="h-5 w-5" />,color: GRN,                   bg: 'oklch(0.55 0.18 145 / 0.1)'  },
+  cancelado:        { label: 'Cancelado',           icon: <XCircle className="h-5 w-5" />,     color: 'oklch(0.55 0.02 40)', bg: 'oklch(0.88 0.03 70 / 0.5)'   },
 }
 
 const PASOS = ['pendiente', 'confirmado', 'en_camino', 'entregado']
@@ -30,6 +35,7 @@ export default function PedidoDetallePage() {
   const router       = useRouter()
   const supabase     = createClient()
   const esNuevo      = searchParams.get('nuevo') === '1'
+  const resultadoPago = searchParams.get('pago') as 'exitoso' | 'fallido' | 'pendiente' | null
 
   const [pedido,      setPedido]      = useState<Pedido | null>(null)
   const [items,       setItems]       = useState<PedidoItem[]>([])
@@ -110,6 +116,7 @@ export default function PedidoDetallePage() {
   const pasoActual = PASOS.indexOf(pedido.estado)
   const subtotal   = items.reduce((s, i) => s + i.precio_unitario * i.cantidad, 0)
   const descuento  = (pedido as any).descuento_aplicado as number | null
+  const envio      = pedido.costo_envio ?? 0
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
@@ -136,10 +143,55 @@ export default function PedidoDetallePage() {
         </span>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5 pb-32">
+      <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5 pb-32 md:pb-10">
+
+        {/* Banner resultado de pago con MercadoPago */}
+        {resultadoPago === 'exitoso' && (
+          <div className="rounded-2xl p-5 flex items-center gap-4"
+            style={{ backgroundColor: 'oklch(0.55 0.18 145 / 0.1)', border: '1.5px solid oklch(0.55 0.18 145 / 0.3)' }}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: GRN }}>
+              <CheckCircle className="h-6 w-6" style={{ color: 'oklch(0.97 0.012 82)' }} />
+            </div>
+            <div>
+              <p className="font-bold" style={{ color: 'oklch(0.2 0.03 30)', fontFamily: 'var(--font-dm-sans)' }}>¡Pago exitoso!</p>
+              <p className="text-sm" style={{ color: 'oklch(0.45 0.12 145)', fontFamily: 'var(--font-dm-sans)' }}>
+                Tu pedido está confirmado. Te avisaremos cuando esté en camino.
+              </p>
+            </div>
+          </div>
+        )}
+        {resultadoPago === 'pendiente' && (
+          <div className="rounded-2xl p-5 flex items-center gap-4"
+            style={{ backgroundColor: 'oklch(0.76 0.14 80 / 0.12)', border: '1.5px solid oklch(0.76 0.14 80 / 0.35)' }}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: 'oklch(0.76 0.14 80)' }}>
+              <Clock className="h-6 w-6" style={{ color: 'oklch(0.97 0.012 82)' }} />
+            </div>
+            <div>
+              <p className="font-bold" style={{ color: 'oklch(0.2 0.03 30)', fontFamily: 'var(--font-dm-sans)' }}>Pago en proceso</p>
+              <p className="text-sm" style={{ color: 'oklch(0.45 0.08 65)', fontFamily: 'var(--font-dm-sans)' }}>
+                MercadoPago está verificando tu pago. Te notificaremos cuando se confirme.
+              </p>
+            </div>
+          </div>
+        )}
+        {resultadoPago === 'fallido' && (
+          <div className="rounded-2xl p-5 flex items-center gap-4"
+            style={{ backgroundColor: 'oklch(0.50 0.22 24 / 0.08)', border: '1.5px solid oklch(0.50 0.22 24 / 0.3)' }}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: RED }}>
+              <XCircle className="h-6 w-6" style={{ color: 'oklch(0.97 0.012 82)' }} />
+            </div>
+            <div>
+              <p className="font-bold" style={{ color: 'oklch(0.2 0.03 30)', fontFamily: 'var(--font-dm-sans)' }}>Pago no completado</p>
+              <p className="text-sm" style={{ color: 'oklch(0.45 0.12 24)', fontFamily: 'var(--font-dm-sans)' }}>
+                El pago fue rechazado o cancelado. Contáctanos por WhatsApp para ayudarte.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Banner pedido nuevo */}
-        {esNuevo && (
+        {esNuevo && !resultadoPago && (
           <div className="rounded-2xl p-5 flex items-center gap-4"
             style={{ backgroundColor: 'oklch(0.55 0.18 145 / 0.1)', border: '1.5px solid oklch(0.55 0.18 145 / 0.3)' }}>
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -189,6 +241,24 @@ export default function PedidoDetallePage() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Banner "en camino desde hace X min" */}
+        {pedido.estado === 'en_camino' && pedido.en_camino_desde && (
+          <div className="rounded-2xl p-4 flex items-center gap-3"
+            style={{ backgroundColor: 'oklch(0.55 0.18 145 / 0.1)', border: '1px solid oklch(0.55 0.18 145 / 0.3)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: GRN }}>
+              <Truck className="h-5 w-5" style={{ color: 'oklch(0.97 0.012 82)' }} />
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: GRN, fontFamily: 'var(--font-dm-sans)' }}>
+                Tu pedido va en camino
+              </p>
+              <p className="text-xs" style={{ color: 'oklch(0.45 0.12 145)', fontFamily: 'var(--font-dm-sans)' }}>
+                Salió <TiempoTranscurrido fecha={pedido.en_camino_desde} />
+              </p>
             </div>
           </div>
         )}
@@ -244,27 +314,43 @@ export default function PedidoDetallePage() {
                   {(item.producto as any)?.nombre ?? 'Producto'} × {item.cantidad}
                 </span>
                 <span style={{ color: 'oklch(0.2 0.03 30)', fontWeight: 600 }}>
-                  ${(item.precio_unitario * item.cantidad).toFixed(0)}
+                  {fp(item.precio_unitario * item.cantidad)}
                 </span>
               </div>
             ))}
             <div className="h-px mt-1" style={{ backgroundColor: 'oklch(0.90 0.02 82)' }} />
+            {(descuento || envio > 0) && (
+              <div className="flex justify-between text-sm" style={{ fontFamily: 'var(--font-dm-sans)' }}>
+                <span style={{ color: 'oklch(0.55 0.02 40)' }}>Subtotal</span>
+                <span style={{ color: 'oklch(0.35 0.03 30)', fontWeight: 500 }}>{fp(subtotal)}</span>
+              </div>
+            )}
+            {envio > 0 && (
+              <div className="flex justify-between text-sm items-center" style={{ fontFamily: 'var(--font-dm-sans)' }}>
+                <span className="flex items-center gap-1.5" style={{ color: 'oklch(0.55 0.02 40)' }}>
+                  <Truck className="h-3.5 w-3.5" /> Envío
+                </span>
+                <span style={{ color: 'oklch(0.35 0.03 30)', fontWeight: 500 }}>{fp(envio)}</span>
+              </div>
+            )}
+            {envio === 0 && (
+              <div className="flex justify-between text-sm items-center" style={{ fontFamily: 'var(--font-dm-sans)' }}>
+                <span className="flex items-center gap-1.5" style={{ color: 'oklch(0.55 0.02 40)' }}>
+                  <Truck className="h-3.5 w-3.5" /> Envío
+                </span>
+                <span style={{ color: GRN, fontWeight: 600 }}>Gratis</span>
+              </div>
+            )}
             {descuento && descuento > 0 && (
-              <>
-                <div className="flex justify-between text-sm" style={{ fontFamily: 'var(--font-dm-sans)' }}>
-                  <span style={{ color: 'oklch(0.55 0.02 40)' }}>Subtotal</span>
-                  <span style={{ color: 'oklch(0.35 0.03 30)', fontWeight: 500 }}>${subtotal.toFixed(0)}</span>
-                </div>
-                <div className="flex justify-between text-sm" style={{ color: GRN, fontFamily: 'var(--font-dm-sans)', fontWeight: 600 }}>
-                  <span>Descuento</span>
-                  <span>−${descuento.toFixed(0)}</span>
-                </div>
-              </>
+              <div className="flex justify-between text-sm" style={{ color: GRN, fontFamily: 'var(--font-dm-sans)', fontWeight: 600 }}>
+                <span>Descuento</span>
+                <span>−{fp(descuento)}</span>
+              </div>
             )}
             <div className="flex justify-between items-center mt-0.5">
               <span className="text-sm font-semibold" style={{ color: 'oklch(0.2 0.03 30)', fontFamily: 'var(--font-dm-sans)' }}>Total</span>
               <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.5rem', letterSpacing: '0.03em', color: RED }}>
-                ${pedido.total.toFixed(0)}
+                {fp(pedido.total)}
               </span>
             </div>
           </div>

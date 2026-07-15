@@ -18,7 +18,8 @@ import { useEffect, useState } from 'react'
 import type { Perfil } from '@/lib/types'
 
 export default function Navbar() {
-  const totalItems = useCarrito((s) => s.totalItems)
+  const totalItems  = useCarrito((s) => s.totalItems)
+  const abrirDrawer = useCarrito((s) => s.abrirDrawer)
   const router = useRouter()
   const supabase = createClient()
   const [perfil, setPerfil] = useState<Perfil | null>(null)
@@ -91,7 +92,23 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1">
 
-          <Link href="/carrito" className="relative">
+          {/* En mobile abre el drawer; en desktop navega a /carrito */}
+          <button
+            onClick={abrirDrawer}
+            className="md:hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors"
+            style={{ color: 'oklch(0.97 0.012 82 / 0.85)' }}
+          >
+            <ShoppingCart className="h-[18px] w-[18px]" />
+            {totalItems() > 0 && (
+              <Badge
+                className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full p-0 flex items-center justify-center text-[10px] border-0"
+                style={{ backgroundColor: 'oklch(0.76 0.14 80)', color: 'oklch(0.2 0.03 30)' }}
+              >
+                {totalItems()}
+              </Badge>
+            )}
+          </button>
+          <Link href="/carrito" className="hidden md:block relative">
             <Button
               variant="ghost"
               size="icon"
@@ -125,6 +142,11 @@ export default function Navbar() {
               <DropdownMenuContent align="end" className="border-border">
                 <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">{perfil.nombre ?? 'Mi cuenta'}</div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/cuenta" className="flex items-center gap-2">
+                    <User className="h-4 w-4" /> Mi cuenta
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/pedidos" className="flex items-center gap-2">
                     <Package className="h-4 w-4" /> Mis pedidos

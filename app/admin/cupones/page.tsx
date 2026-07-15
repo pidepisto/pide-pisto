@@ -12,6 +12,16 @@ type Form = { codigo: string; descripcion: string; tipo: 'porcentaje'|'fijo'; va
 const hoy = new Date().toISOString().slice(0,10)
 const FORM_VACIO: Form = { codigo: '', descripcion: '', tipo: 'porcentaje', valor: '', minimo_compra: '0', limite_usos: '', fecha_inicio: hoy, fecha_fin: '' }
 
+const BDR = '1px solid oklch(0.88 0.03 70)'
+const inputStyle = { backgroundColor: 'oklch(0.97 0.012 82)', color: 'oklch(0.20 0.03 30)', border: BDR, fontFamily: 'var(--font-dm-sans)' }
+
+const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold" style={{ color: 'oklch(0.45 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>{label}</label>
+    {children}
+  </div>
+)
+
 export default function AdminCupones() {
   const supabase = createClient()
   const [cupones, setCupones] = useState<Cupon[]>([])
@@ -62,47 +72,81 @@ export default function AdminCupones() {
     cargar()
   }
 
-  const inputStyle = { backgroundColor: 'oklch(0.22 0.03 22)', color: 'oklch(0.85 0.01 82)', border: '1px solid oklch(1 0 0 / 0.1)', fontFamily: 'var(--font-dm-sans)' }
-  const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold" style={{ color: 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>{label}</label>
-      {children}
-    </div>
-  )
-
   return (
     <div className="p-6 flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <h1 style={{ fontFamily: 'var(--font-bebas)', fontSize: '2rem', letterSpacing: '0.04em', color: 'oklch(0.97 0.012 82)' }}>Cupones</h1>
+        <h1 style={{ fontFamily: 'var(--font-bebas)', fontSize: '2rem', letterSpacing: '0.04em', color: 'oklch(0.20 0.03 30)' }}>Cupones</h1>
         <Button onClick={abrirNuevo} className="gap-2 border-0" style={{ backgroundColor: 'oklch(0.50 0.22 24)', color: 'oklch(0.97 0.012 82)', fontFamily: 'var(--font-dm-sans)' }}>
           <Plus className="h-4 w-4" /> Nuevo cupón
         </Button>
       </div>
 
       <div className="flex flex-col gap-3">
-        {cupones.length === 0 && <p className="text-sm text-center py-12" style={{ color: 'oklch(0.50 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>Sin cupones creados</p>}
+        {cupones.length === 0 && <p className="text-sm text-center py-12" style={{ color: 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>Sin cupones creados</p>}
         {cupones.map(c => (
-          <div key={c.id} className="rounded-2xl p-4 flex items-center gap-4" style={{ backgroundColor: 'oklch(0.18 0.03 22)', border: '1px solid oklch(1 0 0 / 0.06)', opacity: c.activo ? 1 : 0.55 }}>
+          <div key={c.id} className="rounded-2xl p-4 flex items-center gap-4"
+            style={{ backgroundColor: 'oklch(1 0 0)', border: BDR, opacity: c.activo ? 1 : 0.55 }}>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.2rem', letterSpacing: '0.06em', color: c.activo ? 'oklch(0.76 0.14 80)' : 'oklch(0.55 0.02 40)' }}>{c.codigo}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: c.activo ? 'oklch(0.55 0.18 145 / 0.15)' : 'oklch(0.55 0.02 40 / 0.15)', color: c.activo ? 'oklch(0.45 0.15 145)' : 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+                <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.2rem', letterSpacing: '0.06em', color: c.activo ? 'oklch(0.50 0.22 24)' : 'oklch(0.55 0.02 40)' }}>{c.codigo}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: c.activo ? 'oklch(0.55 0.18 145 / 0.12)' : 'oklch(0.90 0.02 70)', color: c.activo ? 'oklch(0.40 0.15 145)' : 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
                   {c.activo ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
-              <p className="text-sm mt-0.5" style={{ color: 'oklch(0.65 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+              <p className="text-sm mt-0.5" style={{ color: 'oklch(0.40 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
                 {c.tipo === 'porcentaje' ? `${c.valor}% de descuento` : `$${c.valor} de descuento`}
                 {c.minimo_compra > 0 && ` · mínimo $${c.minimo_compra}`}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: 'oklch(0.50 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
-                Usos: {c.usos_actuales}{c.limite_usos ? `/${c.limite_usos}` : ''} · Inicio: {c.fecha_inicio?.slice(0,10)}{c.fecha_fin ? ` → ${c.fecha_fin?.slice(0,10)}` : ''}
-              </p>
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                {/* Contador de usos */}
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg"
+                    style={{ backgroundColor: c.limite_usos && c.usos_actuales >= c.limite_usos ? 'oklch(0.50 0.22 24 / 0.10)' : 'oklch(0.93 0.02 75)' }}>
+                    <span style={{ fontFamily: 'var(--font-bebas)', fontSize: '1rem', letterSpacing: '0.03em',
+                      color: c.limite_usos && c.usos_actuales >= c.limite_usos ? 'oklch(0.50 0.22 24)' : 'oklch(0.25 0.02 40)' }}>
+                      {c.usos_actuales}
+                    </span>
+                    {c.limite_usos && (
+                      <span className="text-xs" style={{ color: 'oklch(0.55 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+                        / {c.limite_usos}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs" style={{ color: 'oklch(0.60 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+                    uso{c.usos_actuales !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                {/* Barra de progreso si hay límite */}
+                {c.limite_usos && (
+                  <div className="flex items-center gap-1.5 flex-1" style={{ minWidth: 80, maxWidth: 140 }}>
+                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'oklch(0.90 0.02 70)' }}>
+                      <div className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(100, (c.usos_actuales / c.limite_usos) * 100)}%`,
+                          backgroundColor: c.usos_actuales >= c.limite_usos ? 'oklch(0.50 0.22 24)' : 'oklch(0.55 0.18 145)',
+                        }} />
+                    </div>
+                    <span className="text-[10px]" style={{ color: 'oklch(0.60 0.02 40)', fontFamily: 'var(--font-dm-sans)', flexShrink: 0 }}>
+                      {Math.round((c.usos_actuales / c.limite_usos) * 100)}%
+                    </span>
+                  </div>
+                )}
+                {/* Fechas */}
+                <span className="text-xs" style={{ color: 'oklch(0.60 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
+                  {c.fecha_inicio?.slice(0,10)}{c.fecha_fin ? ` → ${c.fecha_fin?.slice(0,10)}` : ''}
+                </span>
+              </div>
             </div>
             <div className="flex gap-1">
-              <button onClick={() => abrirEditar(c)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/5 text-xs transition-colors" style={{ color: 'oklch(0.60 0.02 40)', fontFamily: 'var(--font-dm-sans)', fontSize: '0.7rem' }}>
+              <button onClick={() => abrirEditar(c)}
+                className="h-8 px-3 rounded-xl flex items-center justify-center text-xs font-medium transition-colors"
+                style={{ backgroundColor: 'oklch(0.91 0.02 70)', color: 'oklch(0.35 0.02 40)', fontFamily: 'var(--font-dm-sans)' }}>
                 Editar
               </button>
-              <button onClick={() => toggleActivo(c)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/5 transition-colors" style={{ color: c.activo ? 'oklch(0.45 0.15 145)' : 'oklch(0.55 0.02 40)' }}>
+              <button onClick={() => toggleActivo(c)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+                style={{ backgroundColor: c.activo ? 'oklch(0.45 0.15 145 / 0.12)' : 'oklch(0.91 0.02 70)', color: c.activo ? 'oklch(0.40 0.15 145)' : 'oklch(0.55 0.02 40)' }}>
                 <Power className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -112,10 +156,11 @@ export default function AdminCupones() {
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setModal(false)} />
-          <div className="relative w-full max-w-md rounded-2xl p-6 flex flex-col gap-4 overflow-y-auto max-h-[90vh]" style={{ backgroundColor: 'oklch(0.18 0.03 22)', border: '1px solid oklch(1 0 0 / 0.1)' }}>
+          <div className="absolute inset-0 bg-black/40" onClick={() => setModal(false)} />
+          <div className="relative w-full max-w-md rounded-2xl p-6 flex flex-col gap-4 overflow-y-auto max-h-[90vh]"
+            style={{ backgroundColor: 'oklch(1 0 0)', border: BDR, boxShadow: '0 8px 40px oklch(0 0 0 / 0.15)' }}>
             <div className="flex items-center justify-between">
-              <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.5rem', letterSpacing: '0.04em', color: 'oklch(0.97 0.012 82)' }}>{editando ? 'Editar cupón' : 'Nuevo cupón'}</h2>
+              <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.5rem', letterSpacing: '0.04em', color: 'oklch(0.20 0.03 30)' }}>{editando ? 'Editar cupón' : 'Nuevo cupón'}</h2>
               <button onClick={() => setModal(false)} style={{ color: 'oklch(0.55 0.02 40)' }}><X className="h-5 w-5" /></button>
             </div>
             <F label="Código *"><Input value={form.codigo} onChange={e => setForm({...form, codigo: e.target.value.toUpperCase()})} placeholder="BIENVENIDO20" style={inputStyle} /></F>

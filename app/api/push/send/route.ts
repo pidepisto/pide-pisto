@@ -9,8 +9,14 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 )
 
+import { limiters, getIp } from '@/lib/ratelimit'
+
 // Solo admins pueden llamar este endpoint
 export async function POST(req: NextRequest) {
+  const { success } = await limiters.push.limit(getIp(req))
+  if (!success) {
+    return NextResponse.json({ error: 'Rate limit excedido' }, { status: 429 })
+  }
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })

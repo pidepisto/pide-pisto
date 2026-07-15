@@ -4,6 +4,9 @@ import type { ItemCarrito, Producto } from '@/lib/types'
 
 type CarritoStore = {
   items: ItemCarrito[]
+  drawerAbierto: boolean
+  abrirDrawer: () => void
+  cerrarDrawer: () => void
   agregar: (producto: Producto) => void
   quitar: (productoId: string) => void
   actualizarCantidad: (productoId: string, cantidad: number) => void
@@ -16,6 +19,9 @@ export const useCarrito = create<CarritoStore>()(
   persist(
     (set, get) => ({
       items: [],
+      drawerAbierto: false,
+      abrirDrawer: () => set({ drawerAbierto: true }),
+      cerrarDrawer: () => set({ drawerAbierto: false }),
 
       agregar: (producto) => {
         const items = get().items
@@ -27,9 +33,10 @@ export const useCarrito = create<CarritoStore>()(
                 ? { ...i, cantidad: i.cantidad + 1 }
                 : i
             ),
+            drawerAbierto: true,
           })
         } else {
-          set({ items: [...items, { producto, cantidad: 1 }] })
+          set({ items: [...items, { producto, cantidad: 1 }], drawerAbierto: true })
         }
       },
 
@@ -52,14 +59,14 @@ export const useCarrito = create<CarritoStore>()(
       limpiar: () => set({ items: [] }),
 
       total: () =>
-        get().items.reduce(
-          (acc, i) => acc + i.producto.precio * i.cantidad,
-          0
-        ),
+        get().items.reduce((acc, i) => acc + i.producto.precio * i.cantidad, 0),
 
       totalItems: () =>
         get().items.reduce((acc, i) => acc + i.cantidad, 0),
     }),
-    { name: 'pide-pisto-carrito' }
+    {
+      name: 'pide-pisto-carrito',
+      partialize: (state) => ({ items: state.items }), // no persistir estado del drawer
+    }
   )
 )

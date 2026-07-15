@@ -1,34 +1,56 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ShieldCheck, X } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter, usePathname } from 'next/navigation'
 
-const STORAGE_KEY = 'pp-edad-verificada'
+const STORAGE_KEY  = 'pp-edad-verificada'
+const TTL_DIAS     = 30
 const RUTAS_EXCLUIDAS = ['/login', '/registro']
 
+function estaVerificado(): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return false
+    const ts = parseInt(raw, 10)
+    if (isNaN(ts)) return false
+    const diasPasados = (Date.now() - ts) / 1000 / 60 / 60 / 24
+    return diasPasados < TTL_DIAS
+  } catch {
+    return false
+  }
+}
+
 export default function VerificacionEdad() {
-  const [visible, setVisible] = useState(false)
+  // 'checking' → 'required' → 'done'
+  const [estado, setEstado] = useState<'checking' | 'required' | 'done'>('checking')
   const pathname = usePathname()
-  const router = useRouter()
+  const router   = useRouter()
 
   useEffect(() => {
-    if (RUTAS_EXCLUIDAS.includes(pathname)) return
-    const verificado = localStorage.getItem(STORAGE_KEY)
-    if (!verificado) setVisible(true)
+    if (RUTAS_EXCLUIDAS.includes(pathname)) { setEstado('done'); return }
+    setEstado(estaVerificado() ? 'done' : 'required')
   }, [pathname])
 
   const confirmar = () => {
-    localStorage.setItem(STORAGE_KEY, '1')
-    setVisible(false)
+    try { localStorage.setItem(STORAGE_KEY, String(Date.now())) } catch {}
+    setEstado('done')
   }
 
   const rechazar = () => {
     router.push('https://www.gob.mx/salud')
   }
 
-  if (!visible) return null
+  // Mientras se verifica: bloquea interacción con overlay invisible
+  if (estado === 'checking') {
+    return (
+      <div className="fixed inset-0 z-[100]"
+        style={{ backgroundColor: 'oklch(0.97 0.012 82)' }} />
+    )
+  }
+
+  if (estado === 'done') return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">

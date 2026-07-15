@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Clock, Truck, CheckCircle, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { fp, tiempoTranscurrido } from '@/lib/utils'
 
 type PedidoResumen = {
   id: string
   estado: string
   total: number
   created_at: string
+  en_camino_desde: string | null
 }
 
 const ESTADOS: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; borde: string }> = {
@@ -49,7 +51,7 @@ export default function PedidoActivo() {
 
       const { data } = await supabase
         .from('pedidos')
-        .select('id, estado, total, created_at')
+        .select('id, estado, total, created_at, en_camino_desde')
         .eq('usuario_id', user.id)
         .in('estado', ['pendiente', 'confirmado', 'en_camino'])
         .order('created_at', { ascending: false })
@@ -67,7 +69,7 @@ export default function PedidoActivo() {
           async () => {
             const { data: actualizado } = await supabase
               .from('pedidos')
-              .select('id, estado, total, created_at')
+              .select('id, estado, total, created_at, en_camino_desde')
               .eq('usuario_id', user.id)
               .in('estado', ['pendiente', 'confirmado', 'en_camino'])
               .order('created_at', { ascending: false })
@@ -136,7 +138,7 @@ export default function PedidoActivo() {
                 opacity: 0.9,
               }}
             >
-              ${pedido.total.toFixed(0)}
+              {fp(pedido.total)}
             </span>
             <ChevronRight className="h-4 w-4" style={{ color: cfg.color, opacity: 0.7 }} />
           </div>

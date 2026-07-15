@@ -29,7 +29,20 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
-    router.push('/catalogo')
+    // Redirigir según rol
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: perfil } = await supabase.from('perfiles').select('es_admin, rol').eq('id', user.id).single()
+      if (perfil?.es_admin) {
+        router.push('/admin')
+      } else if (perfil?.rol === 'repartidor') {
+        router.push('/repartidor')
+      } else {
+        router.push('/catalogo')
+      }
+    } else {
+      router.push('/catalogo')
+    }
     router.refresh()
   }
 
