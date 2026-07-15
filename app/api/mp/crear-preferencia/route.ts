@@ -44,9 +44,10 @@ export async function POST(req: NextRequest) {
     body: {
       external_reference: pedido_id,
       items: (pedido.pedido_items as any[]).map((item) => ({
-        title:      item.productos?.nombre ?? 'Producto',
-        quantity:   item.cantidad,
-        unit_price: Number(item.precio_unitario),
+        id:          item.producto_id ?? item.id ?? '0',
+        title:       item.productos?.nombre ?? 'Producto',
+        quantity:    item.cantidad,
+        unit_price:  Number(item.precio_unitario),
         currency_id: 'MXN',
       })),
       payer: {
