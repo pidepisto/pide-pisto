@@ -212,8 +212,8 @@ export default function CatalogoCliente({ categorias, productos, banners }: Prop
       )}
 
       {/* ── BARRA DIRECCIÓN (solo mobile) ── */}
-      <div className="md:hidden sticky z-40 px-4 pt-3 pb-2 border-b"
-        style={{ top: '3.5rem', backgroundColor: 'oklch(0.97 0.012 82)', borderColor: 'oklch(0.88 0.03 70)' }}>
+      <div className="md:hidden px-4 pt-3 pb-2 border-b"
+        style={{ backgroundColor: 'oklch(0.97 0.012 82)', borderColor: 'oklch(0.88 0.03 70)' }}>
         <button onClick={() => setPanelDir(true)}
           className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-2xl"
           style={{ backgroundColor: 'oklch(0.92 0.02 82)', border: '1px solid oklch(0.88 0.03 70)' }}>
@@ -229,26 +229,25 @@ export default function CatalogoCliente({ categorias, productos, banners }: Prop
       </div>
 
       {/* ── CATEGORÍAS CHIPS (solo mobile) ── */}
-      <div className="md:hidden sticky z-30 px-4 py-3 flex gap-4 overflow-x-auto scrollbar-none border-b"
-        style={{ top: 'calc(3.5rem + 66px)', backgroundColor: 'oklch(0.97 0.012 82)', borderColor: 'oklch(0.88 0.03 70)' }}>
+      <div className="md:hidden sticky z-30 px-4 py-2 flex gap-3 overflow-x-auto scrollbar-none border-b"
+        style={{ top: '3.5rem', backgroundColor: 'oklch(0.97 0.012 82)', borderColor: 'oklch(0.88 0.03 70)' }}>
         {categorias.map((cat) => {
           const esActivo = categoriaActiva === cat.slug
           return (
             <button key={cat.id} onClick={() => scrollACategoria(cat.slug)}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center transition-all"
+              className="flex-shrink-0 flex flex-col items-center gap-1">
+              <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center transition-all"
                 style={{
                   backgroundColor: 'oklch(0.92 0.02 82)',
-                  border: esActivo ? `2.5px solid ${RED}` : '2.5px solid transparent',
-                  boxShadow: esActivo ? `0 0 0 1px ${RED}25` : 'none',
+                  border: esActivo ? `2px solid ${RED}` : '2px solid transparent',
                 }}>
                 {cat.imagen_url
-                  ? <Image src={cat.imagen_url} alt={cat.nombre} width={64} height={64} className="w-full h-full object-cover" />
-                  : <span style={{ fontSize: '1.8rem' }}>{cat.nombre.charAt(0)}</span>
+                  ? <Image src={cat.imagen_url} alt={cat.nombre} width={44} height={44} className="w-full h-full object-cover" />
+                  : <span style={{ fontSize: '1.2rem' }}>{cat.nombre.charAt(0)}</span>
                 }
               </div>
-              <span className="text-[11px] font-semibold text-center leading-tight"
-                style={{ fontFamily: 'var(--font-dm-sans)', color: esActivo ? RED : 'oklch(0.35 0.03 30)', maxWidth: '4.5rem' }}>
+              <span className="text-[10px] font-semibold text-center leading-tight"
+                style={{ fontFamily: 'var(--font-dm-sans)', color: esActivo ? RED : 'oklch(0.45 0.03 30)', maxWidth: '3.5rem' }}>
                 {cat.nombre}
               </span>
             </button>
