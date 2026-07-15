@@ -145,13 +145,11 @@ export async function POST(req: NextRequest) {
 
   // ── 8. Incrementar usos del cupón ─────────────────────────────────────────
   if (cuponId) {
-    await admin.rpc('incrementar_usos_cupon', { cupon_uuid: cuponId }).catch(() => {
-      // Fallback si no existe la función RPC
-      admin.from('cupones').select('usos_actuales').eq('id', cuponId!).single()
-        .then(({ data }) => {
-          if (data) admin.from('cupones').update({ usos_actuales: data.usos_actuales + 1 }).eq('id', cuponId!)
-        })
-    })
+    const { error: rpcError } = await admin.rpc('incrementar_usos_cupon', { cupon_uuid: cuponId })
+    if (rpcError) {
+      const { data } = await admin.from('cupones').select('usos_actuales').eq('id', cuponId).single()
+      if (data) await admin.from('cupones').update({ usos_actuales: data.usos_actuales + 1 }).eq('id', cuponId)
+    }
   }
 
   return NextResponse.json({ ok: true, pedido_id: pedido.id, total: totalFinal })
